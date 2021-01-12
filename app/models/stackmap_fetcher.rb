@@ -28,47 +28,41 @@ class StackmapFetcher
 
   # returns a MapInfo object OR nil if no map is available
   def fetch_map_info
-    begin
-      return nil unless @holding && @holding.call_number && @holding.collection.internal_code
+    return nil unless @holding && @holding.call_number && @holding.collection.internal_code
 
-      base_url = "https://jhu.stackmap.com/json/"
-      item_call = CGI::escape(@holding.call_number)
-      item_location = @holding.collection.internal_code
-      # hard-coded, stackmap value for our account
-      item_library = CGI::escape("Milton S. Eisenhower Librar")
+    base_url = "https://jhu.stackmap.com/json/"
+    item_call = CGI::escape(@holding.call_number)
+    item_location = @holding.collection.internal_code
+    # hard-coded, stackmap value for our account
+    item_library = CGI::escape("Milton S. Eisenhower Librar")
 
-      request_url = "#{base_url}?callno=#{item_call}&location=#{item_location}&library=#{item_library}"
+    request_url = "#{base_url}?callno=#{item_call}&location=#{item_location}&library=#{item_library}"
 
-      # stackmap = begin
+    # stackmap = begin
+    response  =  Faraday.get(request_url)
 
-      #client = HTTPClient.new
-      response  =  Faraday.get(request_url)
-
-      if response.status != 200
-        raise HTTPClient::BadResponseError.new("Non-succesful #{response.status} response for #{request_url}")
-      end
-
-      response_body = response.body
-      stackmap = MultiJson.load(response_body)
-
-      if stackmap["stat"] != "OK"
-        map_info = MapInfo.new(:status => stackmap["stat"],
-                    :error => stackmap["message"])
-      elsif stackmap["stat"]== "OK"
-        if  stackmap["results"]["maps"].size > 0
-          map_info = MapInfo.new(:status => stackmap["stat"],
-                  :map_url => "#{stackmap["results"]["maps"].first["mapurl"]}&marker=1",
-                  :floor_name => "#{stackmap["results"]["maps"].first["floorname"]}",
-                  :range_name => "#{stackmap["results"]["maps"].first["ranges"].first["rangename"]}" )
-        elsif stackmap["results"]["maps"].size == 0
-          map_info = MapInfo.new(:status => "OK but no map",
-                    :error => "No map is available for this item.")
-        end
-      end
-    rescue Exception => e
-      map_info = MapInfo.new(:status => "OK but no map",
-                             :error => e.message)
+    if response.status != 200
+      raise HTTPClient::BadResponseError.new("Non-succesful #{response.status} response for #{request_url}")
     end
+
+    response_body = response.body
+    stackmap = MultiJson.load(response_body)
+
+    if stackmap["stat"] != "OK"
+      map_info = MapInfo.new(:status => stackmap["stat"],
+                  :error => stackmap["message"])
+    elsif stackmap["stat"]== "OK"
+      if  stackmap["results"]["maps"].size > 0
+        map_info = MapInfo.new(:status => stackmap["stat"],
+                :map_url => "#{stackmap["results"]["maps"].first["mapurl"]}&marker=1",
+                :floor_name => "#{stackmap["results"]["maps"].first["floorname"]}",
+                :range_name => "#{stackmap["results"]["maps"].first["ranges"].first["rangename"]}" )
+      elsif stackmap["results"]["maps"].size == 0
+        map_info = MapInfo.new(:status => "OK but no map",
+                  :error => "No map is available for this item.")
+      end
+    end
+
     return map_info
   end
 
