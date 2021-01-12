@@ -41,9 +41,8 @@ class StackmapFetcher
 
       # stackmap = begin
 
-      client = HTTPClient.new
-      client.ssl_config.cert_store.set_default_paths
-      response  =  client.get(request_url)
+      #client = HTTPClient.new
+      response  =  Faraday.get(request_url)
 
       if response.status != 200
         raise HTTPClient::BadResponseError.new("Non-succesful #{response.status} response for #{request_url}")
