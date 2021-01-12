@@ -1,5 +1,6 @@
 require 'multi_json'
 require 'yaml'
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 class StackmapFetcher
 
@@ -67,7 +68,7 @@ class StackmapFetcher
     rescue Exception => e
       map_info = MapInfo.new(:status => "OK but no map",
                              :error => e.message)
-    end 
+    end
     return map_info
   end
 
