@@ -1,6 +1,5 @@
 require 'multi_json'
 require 'yaml'
-OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
 
 class StackmapFetcher
 
@@ -41,7 +40,9 @@ class StackmapFetcher
       request_url = "#{base_url}?callno=#{item_call}&location=#{item_location}&library=#{item_library}"
 
       # stackmap = begin
+
       client = HTTPClient.new
+      client.ssl_config.cert_store.set_default_paths
       response  =  client.get(request_url)
 
       if response.status != 200
