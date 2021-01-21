@@ -16,7 +16,7 @@ class SearchBuilder < Blacklight::SearchBuilder
   # blacklight_cql is no longer maintained
   # include BlacklightCql::SearchBuilderExtension
 
-  # @TODO: Removing - EWL (Assuming removed during upgrade b/c adv search was borked)
+  # @TODO: Removing - EWL
   # self.default_processor_chain += [:add_facet_fq_to_solr]
   # if BlacklightAdvancedSearch is loaded
   # if defined? BlacklightAdvancedSearch
